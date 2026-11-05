@@ -1,0 +1,11 @@
+.DS_Store
+CareShift-*.json
+*.jpg
+*.jpeg
+*.png
+*.zip
+.vscode/
+local-artifacts/
+node_modules/
+.env
+.env.*

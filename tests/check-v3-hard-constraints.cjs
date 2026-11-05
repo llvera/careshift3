@@ -1,0 +1,32 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const c={console,localStorage:{getItem:()=>null,setItem:()=>{}},structuredClone,Date,Math,document:{querySelector:()=>null}};
+vm.createContext(c);vm.runInContext(fs.readFileSync('app.js','utf8').replace(/render\(\);\s*$/,''),c);
+vm.runInContext(`render=()=>{};
+let p=s.staff[1];s.staff=[p];s.table={};s.locks={};s.history={};
+for(let d=2;d<=6;d++){s.table[key(p,d)]={kind:'早'};s.locks[key(p,d)]=true;}
+if(canInsertWork(p,1,s.table))throw Error('Future locked streak accepted');
+s.table[key(p,1)]={kind:'早'};
+let e=checks().find(e=>e.ruleCode==='MAX_CONSECUTIVE');
+if(!e||e.severity!=='ERROR'||e.soft)throw Error('Six days must be hard');
+let penalty=rulePenalty(e);if(rulePenalty({...e,msg:'日本語でも同じルール'})!==penalty)throw Error('Message changes priority');
+s.table={};for(let d=1;d<=5;d++)s.table[key(p,d)]={kind:'早'};
+if(checks().some(e=>e.ruleCode==='MAX_CONSECUTIVE'))throw Error('Five days rejected');
+s.history={[p.id]:{run:3}};s.table={};for(let d=1;d<=3;d++)s.table[key(p,d)]={kind:'早'};
+if(!checks().some(e=>e.ruleCode==='MAX_CONSECUTIVE'&&e.d===3))throw Error('Cross month ignored');
+p={id:'2001',full:false,start:'10:00',end:'14:00'};s.staff=[p];s.history={};s.table={};s.locks={};
+for(let d=2;d<=6;d++){s.table[key(p,d)]={kind:'兼职',start:'10:00',end:'14:00'};s.locks[key(p,d)]=true;}
+s.monthlyAvailability={[s.month]:{[p.id]:{1:{enabled:true,start:'10:00',end:'14:00'}}}};
+generate();if(get(p,1).kind!=='休')throw Error('Part time bridge inserted');
+if(s.generated||s.generationRun.status!=='NOT_FOUND')throw Error('Invalid candidate marked feasible');
+p={id:'D',role:'司机',full:false};s.staff=[p];s.table={};s.history={};
+for(let d=1;d<=6;d++)s.table[key(p,d)]={kind:'司机',start:'07:00',end:'20:00'};
+if(!checks().some(e=>e.ruleCode==='MAX_CONSECUTIVE'&&e.p===p))throw Error('Driver exempted');
+if(checks().some(e=>!e.ruleCode||!e.severity))throw Error('Unstructured violation');
+s.staff=[{id:'A'},{id:'B'},{id:'C'}];s.table={'A:1':{kind:'早'},'B:1':{kind:'早'},'C:1':{kind:'兼职',start:'08:00',end:'10:30'}};
+if(coverageViolations(s.table).some(e=>e.d===1&&e.start==='10:30'))throw Error('Obsolete morning continuous requirement remains');
+s.table={'A:1':{kind:'晚'},'B:1':{kind:'晚'},'C:1':{kind:'兼职',start:'16:00',end:'18:00'}};
+let interval=coverageViolations(s.table).find(e=>e.d===1&&e.start==='18:00');
+if(!interval||interval.actual!==2||interval.end!=='19:00')throw Error('Continuous evening gap missed');
+if(interval.countedEmployeeIds.join(',')!=='A,B')throw Error('Coverage evidence wrong');
+`,c);
+console.log('V3: five/six days, future locks, cross-month, drivers, status, message-independent priorities passed');
